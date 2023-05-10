@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import styles from './style.module.css';
 import * as monaco from 'monaco-editor';
 
@@ -47,7 +47,7 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
         onChangeModel(editorRef.current?.getValue() ?? "")
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         Promise.allSettled(extralibs.map(async lib => {
             const response = await fetch(lib.url)
             const text = await response.text();
@@ -74,7 +74,7 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                     contextMenuGroupId: "cutcopypaste",
                     contextMenuOrder: 1,
                     run: function (ed) {
-                        navigator.clipboard.writeText(`${location.href}/#${btoa(editorRef.current?.getValue() ?? '')}`)
+                        navigator.clipboard.writeText(`${location.href.replace('/#', '')}#${btoa(editorRef.current?.getValue() ?? '')}`)
                     },
                 });
             }
