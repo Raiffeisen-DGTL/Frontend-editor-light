@@ -64,7 +64,7 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                         enabled: false
                     }
                 });
-                editorRef.current?.onDidChangeModelContent(handleChangeModel);
+                editorRef.current.onDidChangeModelContent(handleChangeModel);
 
                 editorRef.current.addAction({
                     id: "1",
@@ -73,12 +73,15 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                     keybindingContext: undefined,
                     contextMenuGroupId: "cutcopypaste",
                     contextMenuOrder: 1,
-                    run: function (ed) {
-                        navigator.clipboard.writeText(`${location.href.replace('/#', '')}#${btoa(editorRef.current?.getValue() ?? '')}`)
+                    run: () => {
+                        if (editorRef.current) {
+                            navigator.clipboard.writeText(`${location.href.replace('/#', '')}#${btoa(editorRef.current.getValue())}`)
+                        }
                     },
                 });
             }
         })
+
     }, [])
 
     return <div className={styles.container} ref={editorElRef}></div>
