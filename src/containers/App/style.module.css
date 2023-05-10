@@ -1,0 +1,14 @@
+.container {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.main {
+    top: 80px;
+    height: 100%;
+    width: 100%;
+}
