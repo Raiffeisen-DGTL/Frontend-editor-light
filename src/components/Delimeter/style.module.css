@@ -37,3 +37,18 @@
 .container .child:last-child>.handle {
     display: none;
 }
+
+.container .child>.wrapper {
+    width: calc(100% - 12px);
+    height: 100%;
+}
+
+.container[data-vertical="true"] .child>.wrapper {
+    width: 100%;
+    height: calc(100% - 12px);
+}
+
+.container .child:last-child>.wrapper {
+    width: 100%;
+    height: 100%;
+}

@@ -37,7 +37,16 @@ export const Playground: React.FC<Props> = ({ onLog, code, html, css }) => {
 
 
     useEffect(() => {
-        const handleMessage = (event: MessageEvent) => { onLog({ timestamp: new Date(), data: event.data }) }
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data !== 'request_static') {
+                onLog({ timestamp: new Date(), data: event.data });
+            }
+            if (event.data === 'request_static') {
+                frameRef.current?.contentWindow?.postMessage({ html });
+                frameRef.current?.contentWindow?.postMessage({ css });
+            }
+        };
+
         window.addEventListener('message', handleMessage);
         return () => {
             window.removeEventListener("message", handleMessage);

@@ -82,9 +82,9 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
     return <div className={styles.container} data-vertical={vertical} ref={delimeterRef}>
         {React.Children.map(children, (child, idx) => {
             return <div className={styles.child} style={constructStyle(idx)}>
-                {child}
+                <div className={styles.wrapper}>{child}</div>
                 <div className={styles.handle} onMouseDown={handleDragStart}></div>
             </div>
         })}
     </div >
-}
+} 

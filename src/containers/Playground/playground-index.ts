@@ -49,4 +49,5 @@ window.onmessage = (event: MessageEvent) => {
 }
 
 console.clear();
+parent.postMessage('request_static');
 console.log('init');
