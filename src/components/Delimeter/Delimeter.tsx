@@ -51,6 +51,7 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
     const handleDragEnd = useCallback((e: MouseEvent) => {
         isDrag = false;
         document.body.style.userSelect = "";
+        document.dispatchEvent(new CustomEvent('dragdelimeterend'));
         document.body.removeEventListener('mousemove', handleDrag);
         document.body.removeEventListener('mouseup', handleDragEnd);
     }, [vertical])
@@ -59,6 +60,7 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
         document.body.style.userSelect = "none";
         isDrag = true;
         target = e.currentTarget;
+        document.dispatchEvent(new CustomEvent('dragdelimeterstart'));
         document.body.addEventListener('mousemove', handleDrag);
         document.body.addEventListener('mouseup', handleDragEnd);
     }, [vertical])

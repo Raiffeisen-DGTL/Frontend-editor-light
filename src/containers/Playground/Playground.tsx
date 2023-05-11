@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './style.module.css';
 
 export interface LogData {
@@ -17,6 +17,8 @@ interface Props {
 }
 
 export const Playground: React.FC<Props> = ({ onLog, code, html, css }) => {
+
+    const [showOverlay, setShowOverlay] = useState(false);
 
     const frameRef = useRef<HTMLIFrameElement>(null)
 
@@ -42,7 +44,13 @@ export const Playground: React.FC<Props> = ({ onLog, code, html, css }) => {
         }
     }, []);
 
+    useEffect(() => {
+        document.addEventListener('dragdelimeterstart', () => setShowOverlay(true));
+        document.addEventListener('dragdelimeterend', () => setShowOverlay(false));
+    }, []);
+
     return <div className={styles.container}>
         <iframe ref={frameRef} className={styles.iframe} title="Playground" src="./playground.html" sandbox='allow-scripts allow-same-origin'></iframe>
+        {showOverlay && <div className={styles.overlay}></div>}
     </div>
 }
