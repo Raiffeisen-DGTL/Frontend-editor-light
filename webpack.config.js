@@ -58,7 +58,8 @@ module.exports = (env) => ({
             filename: 'playground.html',
             title: "Playground",
             chunks: ['playground'],
-            scriptLoading: "module"
+            scriptLoading: "module",
+            scriptLoading: 'defer'
 
         }),
         !env.production && new ReactRefreshWebpackPlugin()

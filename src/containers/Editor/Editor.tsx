@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import styles from './style.module.css';
 import * as monaco from 'monaco-editor';
 
@@ -33,12 +33,22 @@ const extralibs = [{
     url: 'https://unpkg.com/@types/styled-components@5.1.10/index.d.ts'
 }]
 
+const langToExt = {
+    typescript: 'tsx',
+    html: 'html',
+    css: 'css'
+}
+
+const refRequestUrl: any = { current: null }
+
 interface Props {
     onChangeModel(e: string): any;
     defaultCode: string;
+    language?: 'typescript' | 'css' | 'html';
+    requestURL(): void;
 }
 
-export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
+export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language = 'typescript', requestURL }) => {
 
     const editorElRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
@@ -47,6 +57,7 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
         onChangeModel(editorRef.current?.getValue() ?? "")
     }, [])
 
+    refRequestUrl.current = requestURL;
     useLayoutEffect(() => {
         Promise.allSettled(extralibs.map(async lib => {
             const response = await fetch(lib.url)
@@ -58,14 +69,14 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                     jsx: monaco.languages.typescript.JsxEmit.React,
                     jsxFactory: 'React.createElement',
                     reactNamespace: 'React',
-                    allowNonTsExtensions: true,
+                    htllowNonTsExtensions: true,
                     allowJs: true,
                     target: monaco.languages.typescript.ScriptTarget.Latest,
                 });
 
                 editorRef.current = monaco.editor.create(editorElRef.current, {
                     value: defaultCode ?? "",
-                    language: "typescript",
+                    language: language,
                     automaticLayout: true,
                     theme: "vs-dark",
                     minimap: {
@@ -73,7 +84,7 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                     }
                 });
 
-                const model = monaco.editor.createModel(defaultCode, 'typescript', monaco.Uri.parse('index.tsx'));
+                const model = monaco.editor.createModel(defaultCode, language, monaco.Uri.parse(`${language}.${langToExt[language]}`));
                 editorRef.current.setModel(model);
                 editorRef.current.onDidChangeModelContent(handleChangeModel);
 
@@ -85,15 +96,17 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                     contextMenuGroupId: "cutcopypaste",
                     contextMenuOrder: 1,
                     run: () => {
-                        if (editorRef.current) {
-                            navigator.clipboard.writeText(`${location.href.replace('/#', '')}#${btoa(editorRef.current.getValue())}`)
-                        }
+                        refRequestUrl.current?.();
                     },
                 });
             }
         })
-
     }, [])
 
-    return <div className={styles.container} ref={editorElRef}></div>
+    return (
+        <div className={styles.container}>
+            <div className={styles.label} ref={editorElRef} data-lang={langToExt[language]}>{langToExt[language]}</div>
+            <div className={styles.editor} ref={editorElRef}></div>
+        </div >
+    );
 }

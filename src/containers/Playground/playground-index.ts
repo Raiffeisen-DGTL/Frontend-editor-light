@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
+
 console.log = (...attrs) => { parent.postMessage({ console: "log", payload: JSON.stringify(...attrs) }) }
 console.warn = (...attrs) => { parent.postMessage({ console: "warn", payload: JSON.stringify(...attrs) }) }
 console.error = (...attrs) => { parent.postMessage({ console: "error", payload: JSON.stringify(...attrs) }) }
@@ -15,17 +16,18 @@ window.React = React;
 window.ReactDOM = ReactDOM;
 window.styled = styled;
 
+const style = document.createElement('style');
+document.body.prepend(style);
+
 let output = "";
 let oldOutput = output;
 window.onmessage = (event: MessageEvent) => {
-    document.body.innerHTML = '';
-    if (event.data) {
+    if (event.data.code) {
         try {
             oldOutput = output;
-            output = Babel.transform(event.data, { filename: "index.tsx", presets: ["typescript", "react", "env"] }).code;
+            output = Babel.transform(event.data.code, { filename: "index.tsx", presets: ["typescript", "react", "env"] }).code;
         }
         catch (error) {
-            // console.error(error.message);
             output = oldOutput;
         }
         finally {
@@ -37,4 +39,14 @@ window.onmessage = (event: MessageEvent) => {
             }
         }
     }
+    if (event.data.css) {
+        style.innerHTML = event.data.css;
+    }
+    if (event.data.html) {
+        document.body.innerHTML = event.data.html;
+        document.body.prepend(style);
+    }
 }
+
+console.clear();
+console.log('init');

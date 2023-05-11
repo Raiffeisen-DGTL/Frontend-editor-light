@@ -11,16 +11,28 @@ export interface LogData {
 
 interface Props {
     code: string;
+    html: string;
+    css: string;
     onLog(data: LogData): void;
 }
 
-export const Playground: React.FC<Props> = ({ onLog, code }) => {
+export const Playground: React.FC<Props> = ({ onLog, code, html, css }) => {
 
     const frameRef = useRef<HTMLIFrameElement>(null)
 
     useEffect(() => {
-        frameRef.current?.contentWindow?.postMessage(code);
+        frameRef.current?.contentWindow?.postMessage({ code });
     }, [code]);
+
+    useEffect(() => {
+        frameRef.current?.contentWindow?.postMessage({ html });
+    }, [html]);
+
+
+    useEffect(() => {
+        frameRef.current?.contentWindow?.postMessage({ css });
+    }, [css]);
+
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => { onLog({ timestamp: new Date(), data: event.data }) }

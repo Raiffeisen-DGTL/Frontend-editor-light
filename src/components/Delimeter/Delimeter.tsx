@@ -2,6 +2,8 @@ import React, { useCallback, useRef } from 'react';
 import styles from './style.module.css';
 
 const headerHeight = 0;
+const handleSize = 12;
+
 let isDrag = false;
 let target: HTMLDivElement;
 
@@ -21,18 +23,24 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
             if (parentElement) {
                 const delimeterRect = delimeter?.getBoundingClientRect();
                 const nextSibling = parentElement.nextSibling as HTMLDivElement;
-                // const previousSibling = parentElement.previousSibling as HTMLDivElement;
-                // const nextRect = nextSibling?.getBoundingClientRect();
-                // const prevRect = previousSibling?.getBoundingClientRect();
+                const previousSibling = parentElement.previousSibling as HTMLDivElement;
+                const nextRect = nextSibling?.getBoundingClientRect();
+                const prevRect = previousSibling?.getBoundingClientRect();
+
+                const newRight = delimeterRect?.width - e.clientX;
+                const newLeft = e.clientX - delimeterRect?.left;
+
+                const newBottom = delimeterRect?.height - e.clientY + headerHeight;
+                const newTop = e.clientY - delimeterRect?.top;
+
+                if (!vertical && (newLeft > (nextRect?.right ?? 0) - handleSize || newLeft < (prevRect?.right ?? 0) + handleSize)) return;
+                if (vertical && (newTop > (nextRect?.bottom ?? 0) - handleSize || newTop < (prevRect?.bottom ?? 0) + handleSize)) return;
+
                 if (!vertical) {
-                    const newRight = delimeterRect?.width - e.clientX;
-                    const newLeft = e.clientX - delimeterRect?.left;
                     parentElement.style.right = `${newRight * 100 / delimeterRect.width}%`;
                     nextSibling.style.left = `${newLeft * 100 / delimeterRect.width}%`;
                 }
                 else if (target.parentElement) {
-                    const newBottom = delimeterRect?.height - e.clientY + headerHeight;
-                    const newTop = e.clientY - delimeterRect?.top;
                     parentElement.style.bottom = `${newBottom * 100 / delimeterRect.height}%`;
                     nextSibling.style.top = `${newTop * 100 / delimeterRect.height}%`;
                 }
