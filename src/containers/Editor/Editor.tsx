@@ -51,10 +51,18 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
         Promise.allSettled(extralibs.map(async lib => {
             const response = await fetch(lib.url)
             const text = await response.text();
-            monaco.editor.createModel(text, 'typescript', monaco.Uri.parse(`file:///node_modules/@types/${lib.name}/index.d.ts`));
             monaco.languages.typescript.typescriptDefaults.addExtraLib(text, `file:///node_modules/@types/${lib.name}/index.d.ts`);
         })).then(_ => {
             if (editorElRef.current) {
+                monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+                    jsx: monaco.languages.typescript.JsxEmit.React,
+                    jsxFactory: 'React.createElement',
+                    reactNamespace: 'React',
+                    allowNonTsExtensions: true,
+                    allowJs: true,
+                    target: monaco.languages.typescript.ScriptTarget.Latest,
+                });
+
                 editorRef.current = monaco.editor.create(editorElRef.current, {
                     value: defaultCode ?? "",
                     language: "typescript",
@@ -64,6 +72,9 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode }) => {
                         enabled: false
                     }
                 });
+
+                const model = monaco.editor.createModel(defaultCode, 'typescript', monaco.Uri.parse('index.tsx'));
+                editorRef.current.setModel(model);
                 editorRef.current.onDidChangeModelContent(handleChangeModel);
 
                 editorRef.current.addAction({
