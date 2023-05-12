@@ -45,6 +45,12 @@ window.onmessage = (event: MessageEvent) => {
     if (event.data.html) {
         document.body.innerHTML = event.data.html;
         document.body.prepend(style);
+        try {
+            eval(output);
+        }
+        catch (error) {
+            console.error(error.message);
+        }
     }
 }
 

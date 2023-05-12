@@ -39,16 +39,24 @@ const langToExt = {
     css: 'css'
 }
 
-const refRequestUrl: any = { current: null }
+export enum ActionType {
+    COPY_URL,
+    TOGGLE_TSX,
+    TOGGLE_CSS,
+    TOGGLE_HTML,
+    TOGGLE_OUTPUT,
+}
+
+const refAction: { current?(type: ActionType): void } = { current: undefined }
 
 interface Props {
     onChangeModel(e: string): any;
     defaultCode: string;
     language?: 'typescript' | 'css' | 'html';
-    requestURL(): void;
+    onAction(type: ActionType): void;
 }
 
-export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language = 'typescript', requestURL }) => {
+export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language = 'typescript', onAction }) => {
 
     const editorElRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
@@ -57,8 +65,9 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language =
         onChangeModel(editorRef.current?.getValue() ?? "")
     }, [])
 
-    refRequestUrl.current = requestURL;
+    refAction.current = onAction;
     useLayoutEffect(() => {
+        let model: monaco.editor.ITextModel;
         Promise.allSettled(extralibs.map(async lib => {
             const response = await fetch(lib.url)
             const text = await response.text();
@@ -84,23 +93,75 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language =
                     }
                 });
 
-                const model = monaco.editor.createModel(defaultCode, language, monaco.Uri.parse(`${language}.${langToExt[language]}`));
+                model = monaco.editor.createModel(defaultCode, language, monaco.Uri.parse(`${language}.${langToExt[language]}`));
                 editorRef.current.setModel(model);
                 editorRef.current.onDidChangeModelContent(handleChangeModel);
 
                 editorRef.current.addAction({
-                    id: "1",
+                    id: "Copy task URL",
                     label: "Copy task URL",
                     precondition: undefined,
                     keybindingContext: undefined,
-                    contextMenuGroupId: "cutcopypaste",
+                    contextMenuGroupId: "navigation",
                     contextMenuOrder: 1,
                     run: () => {
-                        refRequestUrl.current?.();
+                        refAction.current?.(ActionType.COPY_URL);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle CSS",
+                    label: "Toggle CSS",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "state",
+                    contextMenuOrder: 2,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_CSS);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle HTML",
+                    label: "Toggle HTML",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "state",
+                    contextMenuOrder: 3,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_HTML);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle TSX",
+                    label: "Toggle TSX",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "state",
+                    contextMenuOrder: 1,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_TSX);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle Output",
+                    label: "Toggle Output",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "state",
+                    contextMenuOrder: 4,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_OUTPUT);
                     },
                 });
             }
         })
+
+        return () => {
+            model.dispose();
+        }
     }, [])
 
     return (

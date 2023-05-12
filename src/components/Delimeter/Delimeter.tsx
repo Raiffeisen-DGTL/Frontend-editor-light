@@ -65,7 +65,7 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
         document.body.addEventListener('mouseup', handleDragEnd);
     }, [vertical])
 
-    const childrenLength = React.Children.count(children);
+    const childrenLength = React.Children.map(children, c => c)?.filter(Boolean).length ?? 0;
     const constructStyle = (n: number) => {
         if (!vertical) {
             return {
@@ -80,8 +80,8 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
     }
 
     return <div className={styles.container} data-vertical={vertical} ref={delimeterRef}>
-        {React.Children.map(children, (child, idx) => {
-            return <div className={styles.child} style={constructStyle(idx)}>
+        {React.Children.map(children, c => c)?.filter(Boolean).map((child, idx) => {
+            return <div key={idx} className={styles.child} style={constructStyle(idx)}>
                 <div className={styles.wrapper}>{child}</div>
                 <div className={styles.handle} onMouseDown={handleDragStart}></div>
             </div>
