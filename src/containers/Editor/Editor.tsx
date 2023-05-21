@@ -41,7 +41,6 @@ const langToExt = {
 
 export enum ActionType {
     COPY_URL,
-    SHOW_QR,
     TOGGLE_TSX,
     TOGGLE_CSS,
     TOGGLE_HTML,
@@ -110,18 +109,6 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language =
                     contextMenuOrder: 1,
                     run: () => {
                         refAction.current?.(ActionType.COPY_URL);
-                    },
-                });
-
-                editorRef.current.addAction({
-                    id: "Generate QR Code",
-                    label: "Generate QR Code",
-                    precondition: undefined,
-                    keybindingContext: undefined,
-                    contextMenuGroupId: "navigation",
-                    contextMenuOrder: 2,
-                    run: () => {
-                        refAction.current?.(ActionType.SHOW_QR);
                     },
                 });
 

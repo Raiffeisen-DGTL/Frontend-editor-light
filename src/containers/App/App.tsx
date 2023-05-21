@@ -79,19 +79,6 @@ export const App: React.FC = () => {
                 const res = `${location.origin}/${location.pathname}#${saved}`.replace('//#', '/#');
                 navigator.clipboard.writeText(res);
                 break;
-            case ActionType.SHOW_QR:
-                {
-                    const saved = Base64Encode(JSON.stringify({
-                        code,
-                        html,
-                        css,
-                        settings
-                    }))
-                    const res = `${location.origin}/${location.pathname}#${saved}`.replace('//#', '/#');
-                    localStorage.setItem('editor_state', res);
-                    window.open('/qr.html');
-                }
-                break;
             case ActionType.TOGGLE_TSX:
                 if (getEditorInstanses({ ...settings, code: !settings.code })) {
                     setSettings(prev => ({ ...prev, code: !prev.code }))
