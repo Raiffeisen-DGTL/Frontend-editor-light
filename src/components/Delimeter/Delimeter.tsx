@@ -65,13 +65,25 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
         document.body.addEventListener('mouseup', handleDragEnd);
     }, [vertical])
 
-    const childrenLength = React.Children.map(children, c => c)?.filter(Boolean).length ?? 0;
-    const constructStyle = (n: number) => {
+    const childrenLength = React.Children.map(children, c => c)?.filter(Boolean).filter(c => !(c as React.ReactElement).props['data-hide']).length ?? 0;
+    const skip = React.Children.map(children, c => c)?.filter(Boolean).filter(c => (c as React.ReactElement).props['data-hide']).length ?? 0;
+    const constructStyle = (n: number, hide: boolean) => {
+
+        n = n - skip;
+
         if (!vertical) {
+            if (hide) {
+                return { width: '0px' }
+
+            }
             return {
                 left: `${100 / childrenLength * n}%`,
                 right: `${100 / childrenLength * (childrenLength - n - 1)}%`
             }
+        }
+        if (hide) {
+            return { height: '0px' }
+
         }
         return {
             top: `${100 / childrenLength * n}%`,
@@ -81,7 +93,7 @@ export const Delimeter: React.FC<Props> = ({ vertical, children }) => {
 
     return <div className={styles.container} data-vertical={vertical} ref={delimeterRef}>
         {React.Children.map(children, c => c)?.filter(Boolean).map((child, idx) => {
-            return <div key={idx} className={styles.child} style={constructStyle(idx)}>
+            return <div key={idx + skip} className={styles.child} style={constructStyle(idx, (child as React.ReactElement).props['data-hide'])}>
                 <div className={styles.wrapper}>{child}</div>
                 <div className={styles.handle} onMouseDown={handleDragStart}></div>
             </div>

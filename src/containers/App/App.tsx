@@ -3,9 +3,9 @@ import base64js from 'base64-js';
 import pako from 'pako';
 import { Delimeter } from '../../components/Delimeter/Delimeter';
 import { Editor, Playground, Console } from '..';
-import styles from './style.module.css';
 import { LogData } from '../Playground/Playground';
 import { ActionType } from '../Editor/Editor';
+import styles from './style.module.css';
 
 function Base64Encode(str: string) {
     var bytes = pako.deflate(new TextEncoder().encode(str));
@@ -22,6 +22,10 @@ interface Settings {
     css: boolean;
     html: boolean;
     output: boolean;
+    iframe: boolean;
+    console: boolean;
+    qr: boolean;
+    horizontal: boolean;
 }
 
 export const App: React.FC = () => {
@@ -32,7 +36,16 @@ export const App: React.FC = () => {
     const [code, setCode] = useState<string>(loaded.code ?? '');
     const [css, setCss] = useState<string>(loaded.css ?? '');
     const [html, setHtml] = useState<string>(loaded.html ?? '');
-    const [settings, setSettings] = useState<Settings>(loaded.settings ?? { code: true, css: true, html: true, output: true });
+    const [settings, setSettings] = useState<Settings>(loaded.settings ?? {
+        code: true,
+        css: true,
+        html: true,
+        output: true,
+        iframe: true,
+        console: true,
+        qr: false,
+        horizontal: true
+    });
 
     const logHandler = (data: LogData) => {
         if (data.data.console === 'clear') {
@@ -66,6 +79,19 @@ export const App: React.FC = () => {
                 const res = `${location.origin}/${location.pathname}#${saved}`.replace('//#', '/#');
                 navigator.clipboard.writeText(res);
                 break;
+            case ActionType.SHOW_QR:
+                {
+                    const saved = Base64Encode(JSON.stringify({
+                        code,
+                        html,
+                        css,
+                        settings
+                    }))
+                    const res = `${location.origin}/${location.pathname}#${saved}`.replace('//#', '/#');
+                    localStorage.setItem('editor_state', res);
+                    window.open('/qr.html');
+                }
+                break;
             case ActionType.TOGGLE_TSX:
                 if (getEditorInstanses({ ...settings, code: !settings.code })) {
                     setSettings(prev => ({ ...prev, code: !prev.code }))
@@ -82,7 +108,16 @@ export const App: React.FC = () => {
                 }
                 break;
             case ActionType.TOGGLE_OUTPUT:
-                setSettings(prev => ({ ...prev, output: !prev.output }))
+                setSettings(prev => ({ ...prev, output: !prev.output, iframe: !prev.output, console: !prev.output }))
+                break;
+            case ActionType.TOGGLE_IFRAME:
+                setSettings(prev => ({ ...prev, iframe: !prev.iframe, output: prev.console || !prev.iframe }))
+                break;
+            case ActionType.TOGGLE_CONSOLE:
+                setSettings(prev => ({ ...prev, console: !prev.console, output: prev.iframe || !prev.console }))
+                break;
+            case ActionType.TOGGLE_VIEW:
+                setSettings(prev => ({ ...prev, horizontal: !prev.horizontal }))
                 break;
         }
     }
@@ -94,15 +129,15 @@ export const App: React.FC = () => {
     return (
         <div className={styles.container}>
             <div className={styles.main}>
-                <Delimeter>
-                    <Delimeter>
+                <Delimeter vertical={!settings.horizontal}>
+                    <Delimeter vertical={!settings.horizontal}>
                         {settings.code && <Editor defaultCode={code} onChangeModel={handleChangeModelCode} onAction={handleAction} />}
                         {settings.css && <Editor language='css' defaultCode={css} onChangeModel={handleChangeModelCss} onAction={handleAction} />}
                         {settings.html && <Editor language='html' defaultCode={html} onChangeModel={handleChangeModelHtml} onAction={handleAction} />}
                     </Delimeter>
-                    {settings.output && <Delimeter vertical>
-                        <Playground code={code} css={css} html={html} onLog={logHandler} />
-                        <Console logs={logs} />
+                    {settings.output && <Delimeter vertical={settings.horizontal}>
+                        <Playground data-hide={!settings.iframe} code={code} css={css} html={html} onLog={logHandler} />
+                        {settings.console && <Console logs={logs} />}
                     </Delimeter>
                     }
                 </Delimeter>

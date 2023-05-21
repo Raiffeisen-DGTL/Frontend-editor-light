@@ -51,12 +51,13 @@ module.exports = (env) => ({
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html',
-            excludeChunks: ['playground']
+            excludeChunks: ['playground', 'qrcodejs']
         }),
         new HtmlWebpackPlugin({
             template: './src/containers/Playground/playground.html',
             filename: 'playground.html',
             title: "Playground",
+            excludeChunks: ['qrcodejs', 'app', 'editor.worker', 'json.worker', 'css.worker', 'html.worker', 'ts.worker'],
             chunks: ['playground'],
             scriptLoading: "module",
             scriptLoading: 'defer'

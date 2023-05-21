@@ -41,10 +41,14 @@ const langToExt = {
 
 export enum ActionType {
     COPY_URL,
+    SHOW_QR,
     TOGGLE_TSX,
     TOGGLE_CSS,
     TOGGLE_HTML,
     TOGGLE_OUTPUT,
+    TOGGLE_IFRAME,
+    TOGGLE_CONSOLE,
+    TOGGLE_VIEW,
 }
 
 const refAction: { current?(type: ActionType): void } = { current: undefined }
@@ -110,6 +114,18 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language =
                 });
 
                 editorRef.current.addAction({
+                    id: "Generate QR Code",
+                    label: "Generate QR Code",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "navigation",
+                    contextMenuOrder: 2,
+                    run: () => {
+                        refAction.current?.(ActionType.SHOW_QR);
+                    },
+                });
+
+                editorRef.current.addAction({
                     id: "Toggle CSS",
                     label: "Toggle CSS",
                     precondition: undefined,
@@ -154,6 +170,42 @@ export const Editor: React.FC<Props> = ({ onChangeModel, defaultCode, language =
                     contextMenuOrder: 4,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_OUTPUT);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle Iframe",
+                    label: "Toggle Iframe",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "state",
+                    contextMenuOrder: 5,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_IFRAME);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle Console",
+                    label: "Toggle Console",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "state",
+                    contextMenuOrder: 6,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_CONSOLE);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: "Toggle View",
+                    label: "Toggle View",
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: "view",
+                    contextMenuOrder: 1,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_VIEW);
                     },
                 });
             }
