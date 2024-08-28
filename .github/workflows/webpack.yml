@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      pages: write
+      id-token: write
+
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
@@ -25,14 +29,17 @@ jobs:
     - name: Build
       run: |
         npm install
-        npx webpack
+        npm run build
 
     - name: Setup Pages
       uses: actions/configure-pages@v5
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
       with:
+          name: 'gh-pages'
           path: './docs'
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+      with:
+          name: 'gh-pages'
