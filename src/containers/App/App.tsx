@@ -55,16 +55,19 @@ export const App: React.FC = () => {
     }
 
     const handleChangeModelCode = (code: string) => {
+        localStorage.setItem('r_editor_tsx', code);
         setCode(code);
-    }
+    };
 
     const handleChangeModelCss = (code: string) => {
+        localStorage.setItem('r_editor_css', code);
         setCss(code);
-    }
+    };
 
     const handleChangeModelHtml = (code: string) => {
+        localStorage.setItem('r_editor_html', code);
         setHtml(code);
-    }
+    };
 
     const handleAction = (type: ActionType) => {
         const getEditorInstanses = (settings: Settings) => Object.entries(settings).filter(([n, v]) => n !== 'output' && v).length;
@@ -113,14 +116,18 @@ export const App: React.FC = () => {
         location.hash = "";
     }, [])
 
+    const savedTsx = localStorage.getItem('r_editor_tsx') ?? code;
+    const savedCss = localStorage.getItem('r_editor_css') ?? css;
+    const savedHtml = localStorage.getItem('r_editor_html') ?? html;
+
     return (
         <div className={styles.container}>
             <div className={styles.main}>
                 <Delimeter vertical={!settings.horizontal}>
                     <Delimeter vertical={!settings.horizontal}>
-                        {settings.code && <Editor defaultCode={code} onChangeModel={handleChangeModelCode} onAction={handleAction} />}
-                        {settings.css && <Editor language='css' defaultCode={css} onChangeModel={handleChangeModelCss} onAction={handleAction} />}
-                        {settings.html && <Editor language='html' defaultCode={html} onChangeModel={handleChangeModelHtml} onAction={handleAction} />}
+                        {settings.code && <Editor defaultCode={savedTsx} onChangeModel={handleChangeModelCode} onAction={handleAction} />}
+                        {settings.css && <Editor language='css' defaultCode={savedCss} onChangeModel={handleChangeModelCss} onAction={handleAction} />}
+                        {settings.html && <Editor language='html' defaultCode={savedHtml} onChangeModel={handleChangeModelHtml} onAction={handleAction} />}
                     </Delimeter>
                     {settings.output && <Delimeter vertical={settings.horizontal}>
                         <Playground data-hide={!settings.iframe} code={code} css={css} html={html} onLog={logHandler} />
