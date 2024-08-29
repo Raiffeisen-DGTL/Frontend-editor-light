@@ -74,6 +74,7 @@ export const App: React.FC = () => {
 
     const handleAction = (type: ActionType) => {
         const getEditorInstanses = (settings: Settings) => Object.entries(settings).filter(([n, v]) => n !== 'output' && v).length;
+        const savedCode = JSON.parse(localStorage.getItem('r_editor_saved_code') || '{}');
         switch (type) {
             case ActionType.COPY_URL:
                 const saved = Base64Encode(JSON.stringify({
@@ -87,30 +88,58 @@ export const App: React.FC = () => {
                 break;
             case ActionType.TOGGLE_TSX:
                 if (getEditorInstanses({ ...settings, code: !settings.code })) {
-                    setSettings(prev => ({ ...prev, code: !prev.code }))
+                    setSettings(prev => {
+                        const currentSettings = { ...prev, code: !prev.code };
+                        localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}));
+                        return currentSettings;
+                    })
                 }
                 break;
             case ActionType.TOGGLE_CSS:
                 if (getEditorInstanses({ ...settings, css: !settings.css })) {
-                    setSettings(prev => ({ ...prev, css: !prev.css }))
+                    setSettings(prev => {
+                        const currentSettings = { ...prev, css: !prev.css };
+                        localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}));
+                        return currentSettings;
+                    })
                 }
                 break;
             case ActionType.TOGGLE_HTML:
                 if (getEditorInstanses({ ...settings, html: !settings.html })) {
-                    setSettings(prev => ({ ...prev, html: !prev.html }))
+                    setSettings(prev => {
+                        const currentSettings = { ...prev, html: !prev.html };
+                        localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}));
+                        return currentSettings;
+                    })
                 }
                 break;
             case ActionType.TOGGLE_OUTPUT:
-                setSettings(prev => ({ ...prev, output: !prev.output, iframe: !prev.output, console: !prev.output }))
+                setSettings(prev => {
+                    const currentSettings = { ...prev, output: !prev.output, iframe: !prev.output, console: !prev.output };
+                    localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}));
+                    return currentSettings
+                })
                 break;
             case ActionType.TOGGLE_IFRAME:
-                setSettings(prev => ({ ...prev, iframe: !prev.iframe, output: prev.console || !prev.iframe }))
+                setSettings(prev => {
+                    const currentSettings = { ...prev, iframe: !prev.iframe, output: prev.console || !prev.iframe };
+                    localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}))
+                    return currentSettings
+                })
                 break;
             case ActionType.TOGGLE_CONSOLE:
-                setSettings(prev => ({ ...prev, console: !prev.console, output: prev.iframe || !prev.console }))
+                setSettings(prev => {
+                    const currentSettings =  { ...prev, console: !prev.console, output: prev.iframe || !prev.console };
+                    localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}));
+                    return currentSettings;
+                })
                 break;
             case ActionType.TOGGLE_VIEW:
-                setSettings(prev => ({ ...prev, horizontal: !prev.horizontal }))
+                setSettings(prev => {
+                    const currentSettings =  { ...prev, horizontal: !prev.horizontal };
+                    localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, settings: currentSettings}));
+                    return currentSettings;
+                })
                 break;
         }
     }
