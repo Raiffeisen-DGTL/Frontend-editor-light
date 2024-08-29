@@ -30,7 +30,7 @@ interface Settings {
 
 export const App: React.FC = () => {
 
-    const loaded = JSON.parse(Base64Decode(location.hash.replace('#', '')) || '{}');
+    const loaded = JSON.parse(Base64Decode(location.hash.replace('#', '')) || localStorage.getItem('r_editor_saved_code') || '{}');
 
     const [logs, setLogs] = useState<LogData[]>([]);
     const [code, setCode] = useState<string>(loaded.code ?? '');
@@ -55,17 +55,20 @@ export const App: React.FC = () => {
     }
 
     const handleChangeModelCode = (code: string) => {
-        localStorage.setItem('r_editor_tsx', code);
+        const savedCode = JSON.parse(localStorage.getItem('r_editor_saved_code') || '{}');
+        localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, code}))
         setCode(code);
     };
 
     const handleChangeModelCss = (code: string) => {
-        localStorage.setItem('r_editor_css', code);
+        const savedCode = JSON.parse(localStorage.getItem('r_editor_saved_code') || '{}');
+        localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, css: code}))
         setCss(code);
     };
 
     const handleChangeModelHtml = (code: string) => {
-        localStorage.setItem('r_editor_html', code);
+        const savedCode = JSON.parse(localStorage.getItem('r_editor_saved_code') || '{}');
+        localStorage.setItem('r_editor_saved_code', JSON.stringify({...savedCode, html: code}))
         setHtml(code);
     };
 
@@ -116,18 +119,15 @@ export const App: React.FC = () => {
         location.hash = "";
     }, [])
 
-    const savedTsx = localStorage.getItem('r_editor_tsx') ?? code;
-    const savedCss = localStorage.getItem('r_editor_css') ?? css;
-    const savedHtml = localStorage.getItem('r_editor_html') ?? html;
 
     return (
         <div className={styles.container}>
             <div className={styles.main}>
                 <Delimeter vertical={!settings.horizontal}>
                     <Delimeter vertical={!settings.horizontal}>
-                        {settings.code && <Editor defaultCode={savedTsx} onChangeModel={handleChangeModelCode} onAction={handleAction} />}
-                        {settings.css && <Editor language='css' defaultCode={savedCss} onChangeModel={handleChangeModelCss} onAction={handleAction} />}
-                        {settings.html && <Editor language='html' defaultCode={savedHtml} onChangeModel={handleChangeModelHtml} onAction={handleAction} />}
+                        {settings.code && <Editor defaultCode={code} onChangeModel={handleChangeModelCode} onAction={handleAction} />}
+                        {settings.css && <Editor language='css' defaultCode={css} onChangeModel={handleChangeModelCss} onAction={handleAction} />}
+                        {settings.html && <Editor language='html' defaultCode={html} onChangeModel={handleChangeModelHtml} onAction={handleAction} />}
                     </Delimeter>
                     {settings.output && <Delimeter vertical={settings.horizontal}>
                         <Playground data-hide={!settings.iframe} code={code} css={css} html={html} onLog={logHandler} />
