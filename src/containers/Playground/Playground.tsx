@@ -5,7 +5,7 @@ export interface LogData {
     timestamp: Date;
     data: {
         console: "log" | "warn" | "error" | "clear";
-        payload: number | string | boolean | object | [];
+        payload: string;
     }
 }
 

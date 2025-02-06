@@ -35,4 +35,6 @@
     align-self: flex-start;
 }
 
-.data {}
+.data {
+    margin: 0 5px;
+}
