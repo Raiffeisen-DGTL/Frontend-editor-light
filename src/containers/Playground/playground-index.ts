@@ -5,9 +5,9 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 
-console.log = (...attrs) => { parent.postMessage({ console: "log", payload: JSON.stringify(...attrs) }) }
-console.warn = (...attrs) => { parent.postMessage({ console: "warn", payload: JSON.stringify(...attrs) }) }
-console.error = (...attrs) => { parent.postMessage({ console: "error", payload: JSON.stringify(...attrs) }) }
+console.log = (...attrs) => { parent.postMessage({ console: "log", payload: JSON.stringify(attrs) }) }
+console.warn = (...attrs) => { parent.postMessage({ console: "warn", payload: JSON.stringify(attrs) }) }
+console.error = (...attrs) => { parent.postMessage({ console: "error", payload: JSON.stringify(attrs) }) }
 console.clear = () => parent.postMessage({ console: "clear" });
 
 window.onerror = (event: Event | string, source?: string, lineno?: number, colno?: number, error?: Error) => console.error(error);
