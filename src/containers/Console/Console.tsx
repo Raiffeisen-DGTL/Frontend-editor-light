@@ -8,6 +8,7 @@ interface Props {
 
 export const Console: React.FC<Props> = ({ logs }) => {
     return <div className={styles.container}>
+        <div className={styles.label}>console</div>
         {logs.filter(log => log.data.console && log.data.payload).map((log, idx) => {
             const currentPayload = Array.from(
                 JSON.parse(log.data.payload)
