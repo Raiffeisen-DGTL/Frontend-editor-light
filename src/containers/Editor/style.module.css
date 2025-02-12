@@ -32,6 +32,7 @@
 
 .label__icon {
     cursor: pointer;
+    padding-top: 2px;
 }
 
 .label__autorun_block {
