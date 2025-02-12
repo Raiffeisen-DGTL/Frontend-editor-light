@@ -55,5 +55,5 @@ window.onmessage = (event: MessageEvent) => {
 }
 
 console.clear();
-parent.postMessage('request_static');
-console.log('init');
+parent.postMessage('request_default_static');
+parent.postMessage('request_default_code');
