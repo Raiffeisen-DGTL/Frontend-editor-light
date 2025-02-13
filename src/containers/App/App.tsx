@@ -29,6 +29,27 @@ interface Settings {
     autorun: boolean;
 }
 
+const setDefaultSettings = (loaded: any): Settings => {
+    if (loaded.settings) {
+        if (loaded.settings.autorun === undefined) {
+            return { ...loaded.settings, autorun: true };
+        }
+        return loaded.settings;
+    }
+
+    return {
+        code: true,
+        css: true,
+        html: true,
+        output: true,
+        iframe: true,
+        console: true,
+        qr: false,
+        horizontal: true,
+        autorun: true,
+    };
+};
+
 export const App: React.FC = () => {
     const loaded = JSON.parse(
         Base64Decode(location.hash.replace('#', '')) ||
@@ -46,17 +67,7 @@ export const App: React.FC = () => {
     const [stashedHtml, setStashedHtml] = useState<string>('');
 
     const [settings, setSettings] = useState<Settings>(
-        loaded.settings ?? {
-            code: true,
-            css: true,
-            html: true,
-            output: true,
-            iframe: true,
-            console: true,
-            qr: false,
-            horizontal: true,
-            autorun: true,
-        }
+        setDefaultSettings(loaded)
     );
 
     const logHandler = (data: LogData) => {
