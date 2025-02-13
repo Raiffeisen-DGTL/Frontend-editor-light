@@ -1,26 +1,27 @@
-const mockFetch = (mockType: string): Promise<Response> => {
-    const mockArray = [
-        { id: '1', title: 'Test 1' },
-        { id: '2', title: 'Test 2' },
-        { id: '3', title: 'Test 3' },
-        { id: '4', title: 'Test 4' },
-        { id: '5', title: 'Test 5' },
-        { id: '6', title: mockType },
-    ];
+const mockArray = [
+    { id: '1', title: 'Test 1' },
+    { id: '2', title: 'Test 2' },
+    { id: '3', title: 'Test 3' },
+    { id: '4', title: 'Test 4' },
+    { id: '5', title: 'Test 5' },
+];
 
+const mockFetch = (): Promise<Response> => {
     return new Promise((resolve) => {
-        if (mockType === 'slow') {
-            setTimeout(() => {
-                resolve(
-                    new Response(
-                        JSON.stringify({
-                            data: mockArray,
-                        }),
-                        { status: 200 }
-                    )
-                );
-            }, 5000);
-        } else {
+        resolve(
+            new Response(
+                JSON.stringify({
+                    data: mockArray,
+                }),
+                { status: 200 }
+            )
+        );
+    });
+};
+
+const mockSlowFetch = (delay: number): Promise<Response> => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
             resolve(
                 new Response(
                     JSON.stringify({
@@ -29,7 +30,7 @@ const mockFetch = (mockType: string): Promise<Response> => {
                     { status: 200 }
                 )
             );
-        }
+        }, delay);
     });
 };
 
@@ -39,8 +40,16 @@ self.addEventListener('activate', () => {
 
 self.addEventListener('fetch', (event: FetchEvent) => {
     const headers = new Headers(event.request.headers);
-    if (headers.has('X-Mock-Fetch-Type')) {
-        const currentHeader = headers.get('X-Mock-Fetch-Type');
-        if (currentHeader) event.respondWith(mockFetch(currentHeader));
+    const currentFetchTypeHeader = headers.get('X-Mock-Fetch-Type');
+
+    if (currentFetchTypeHeader) {
+        if (currentFetchTypeHeader === 'slow') {
+            const currentDelayHeader = Number(
+                headers.get('X-Mock-Fetch-Delay') ?? '2000'
+            );
+            event.respondWith(mockSlowFetch(currentDelayHeader));
+        } else {
+            event.respondWith(mockFetch());
+        }
     }
 });
