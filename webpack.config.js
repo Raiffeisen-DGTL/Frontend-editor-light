@@ -17,7 +17,7 @@ module.exports = (env) => ({
     },
     output: {
         globalObject: 'self',
-        path: path.resolve(__dirname, './dist'),
+        path: path.resolve(__dirname, './docs'),
         filename: (pathData) => {
             if (pathData.chunk.name === 'interceptServiceWorker') {
                 return '[name].js';
