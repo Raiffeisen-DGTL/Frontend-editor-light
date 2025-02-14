@@ -31,7 +31,9 @@
                         }
                     });
                 navigator.serviceWorker.register(
-                    'https://raiffeisen-dgtl.github.io/Frontend-editor-light/interceptServiceWorker.js'
+                    window.location.host.includes('localhost')
+                        ? '/interceptServiceWorker.js'
+                        : 'https://raiffeisen-dgtl.github.io/Frontend-editor-light/interceptServiceWorker.js'
                 );
             }
         </script>
