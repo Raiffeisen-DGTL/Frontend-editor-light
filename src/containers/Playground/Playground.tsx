@@ -13,10 +13,17 @@ interface Props {
     code: string;
     css: string;
     html: string;
+    api: string;
     onLog(data: LogData): void;
 }
 
-export const Playground: React.FC<Props> = ({ onLog, code, css, html }) => {
+export const Playground: React.FC<Props> = ({
+    code,
+    css,
+    html,
+    api,
+    onLog,
+}) => {
     const [showOverlay, setShowOverlay] = useState(false);
 
     const frameRef = useRef<HTMLIFrameElement>(null);
@@ -26,12 +33,16 @@ export const Playground: React.FC<Props> = ({ onLog, code, css, html }) => {
     }, [code]);
 
     useEffect(() => {
+        frameRef.current?.contentWindow?.postMessage({ css });
+    }, [css]);
+
+    useEffect(() => {
         frameRef.current?.contentWindow?.postMessage({ html });
     }, [html]);
 
     useEffect(() => {
-        frameRef.current?.contentWindow?.postMessage({ css });
-    }, [css]);
+        frameRef.current?.contentWindow?.postMessage({ api });
+    }, [api]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -40,6 +51,8 @@ export const Playground: React.FC<Props> = ({ onLog, code, css, html }) => {
                 frameRef.current?.contentWindow?.postMessage({ html });
             } else if (event.data === 'request_default_code') {
                 frameRef.current?.contentWindow?.postMessage({ code });
+            } else if (event.data === 'request_default_api') {
+                frameRef.current?.contentWindow?.postMessage({ api });
             } else {
                 onLog({ timestamp: new Date(), data: event.data });
             }
