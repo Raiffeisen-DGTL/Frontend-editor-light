@@ -36,7 +36,7 @@ const setDefaultSettings = (loaded: any): Settings => {
             return { ...loaded.settings, autorun: true };
         }
         if (loaded.settings.api === undefined) {
-            return { ...loaded.settings, api: true };
+            return { ...loaded.settings, api: false };
         }
         return loaded.settings;
     }
