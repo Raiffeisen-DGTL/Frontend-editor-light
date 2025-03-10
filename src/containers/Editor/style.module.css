@@ -30,6 +30,10 @@
     color: lightcoral;
 }
 
+.label[data-lang='api'] .label__name {
+    color: green;
+}
+
 .label__icon {
     cursor: pointer;
     padding-top: 2px;

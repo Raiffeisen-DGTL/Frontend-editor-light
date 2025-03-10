@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import base64js from 'base64-js';
 import pako from 'pako';
 import { Delimeter } from '../../components/Delimeter/Delimeter';
@@ -21,6 +21,7 @@ interface Settings {
     code: boolean;
     css: boolean;
     html: boolean;
+    api: boolean;
     output: boolean;
     iframe: boolean;
     console: boolean;
@@ -34,6 +35,9 @@ const setDefaultSettings = (loaded: any): Settings => {
         if (loaded.settings.autorun === undefined) {
             return { ...loaded.settings, autorun: true };
         }
+        if (loaded.settings.api === undefined) {
+            return { ...loaded.settings, api: false };
+        }
         return loaded.settings;
     }
 
@@ -41,6 +45,7 @@ const setDefaultSettings = (loaded: any): Settings => {
         code: true,
         css: true,
         html: true,
+        api: true,
         output: true,
         iframe: true,
         console: true,
@@ -61,6 +66,7 @@ export const App: React.FC = () => {
     const [code, setCode] = useState<string>(loaded.code ?? '');
     const [css, setCss] = useState<string>(loaded.css ?? '');
     const [html, setHtml] = useState<string>(loaded.html ?? '');
+    const [api, setApi] = useState<string>(loaded.api ?? '');
     // For autorun
     const [stashedCode, setStashedCode] = useState<string>('');
     const [stashedCss, setStashedCss] = useState<string>('');
@@ -116,6 +122,17 @@ export const App: React.FC = () => {
         setHtml(code);
     };
 
+    const handleChangeModelApi = (code: string) => {
+        const savedCode = JSON.parse(
+            localStorage.getItem('r_editor_saved_code') || '{}'
+        );
+        localStorage.setItem(
+            'r_editor_saved_code',
+            JSON.stringify({ ...savedCode, api: code })
+        );
+        setApi(code);
+    };
+
     const handleAction = (type: ActionType) => {
         const getEditorInstanses = (settings: Settings) =>
             Object.entries(settings).filter(([n, v]) => n !== 'output' && v)
@@ -130,6 +147,7 @@ export const App: React.FC = () => {
                         code,
                         html,
                         css,
+                        api,
                         settings,
                     })
                 );
@@ -174,6 +192,21 @@ export const App: React.FC = () => {
                 if (getEditorInstanses({ ...settings, html: !settings.html })) {
                     setSettings((prev) => {
                         const currentSettings = { ...prev, html: !prev.html };
+                        localStorage.setItem(
+                            'r_editor_saved_code',
+                            JSON.stringify({
+                                ...savedCode,
+                                settings: currentSettings,
+                            })
+                        );
+                        return currentSettings;
+                    });
+                }
+                break;
+            case ActionType.TOGGLE_API:
+                if (getEditorInstanses({ ...settings, api: !settings.api })) {
+                    setSettings((prev) => {
+                        const currentSettings = { ...prev, api: !prev.api };
                         localStorage.setItem(
                             'r_editor_saved_code',
                             JSON.stringify({
@@ -304,6 +337,14 @@ export const App: React.FC = () => {
                                 onAction={handleAction}
                             />
                         )}
+                        {settings.api && (
+                            <Editor
+                                language='json'
+                                defaultCode={api}
+                                onChangeModel={handleChangeModelApi}
+                                onAction={handleAction}
+                            />
+                        )}
                     </Delimeter>
                     {settings.output && (
                         <Delimeter vertical={settings.horizontal}>
@@ -313,6 +354,7 @@ export const App: React.FC = () => {
                                     code={code}
                                     css={css}
                                     html={html}
+                                    api={api}
                                     onLog={logHandler}
                                 />
                             ) : (
@@ -321,6 +363,7 @@ export const App: React.FC = () => {
                                     code={stashedCode}
                                     css={stashedCss}
                                     html={stashedHtml}
+                                    api={api}
                                     onLog={logHandler}
                                 />
                             )}

@@ -41,6 +41,7 @@ const langToExt = {
     typescript: 'tsx',
     html: 'html',
     css: 'css',
+    json: 'api',
 };
 
 export enum ActionType {
@@ -48,6 +49,7 @@ export enum ActionType {
     TOGGLE_TSX,
     TOGGLE_CSS,
     TOGGLE_HTML,
+    TOGGLE_API,
     TOGGLE_OUTPUT,
     TOGGLE_IFRAME,
     TOGGLE_CONSOLE,
@@ -58,7 +60,7 @@ export enum ActionType {
 const refAction: { current?(type: ActionType): void } = { current: undefined };
 
 interface Props {
-    language?: 'typescript' | 'css' | 'html';
+    language?: 'typescript' | 'css' | 'html' | 'json';
     defaultCode: string;
     autorun?: boolean;
     runCode?: () => void;
@@ -154,7 +156,7 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'state',
-                    contextMenuOrder: 3,
+                    contextMenuOrder: 2,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_HTML);
                     },
@@ -166,9 +168,21 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'state',
-                    contextMenuOrder: 1,
+                    contextMenuOrder: 2,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_TSX);
+                    },
+                });
+
+                editorRef.current.addAction({
+                    id: 'Toggle API',
+                    label: 'Toggle API',
+                    precondition: undefined,
+                    keybindingContext: undefined,
+                    contextMenuGroupId: 'state',
+                    contextMenuOrder: 2,
+                    run: () => {
+                        refAction.current?.(ActionType.TOGGLE_API);
                     },
                 });
 
@@ -178,7 +192,7 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'state',
-                    contextMenuOrder: 4,
+                    contextMenuOrder: 3,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_OUTPUT);
                     },
@@ -190,7 +204,7 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'state',
-                    contextMenuOrder: 5,
+                    contextMenuOrder: 4,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_IFRAME);
                     },
@@ -202,7 +216,7 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'state',
-                    contextMenuOrder: 6,
+                    contextMenuOrder: 3,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_CONSOLE);
                     },
@@ -214,7 +228,7 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'view',
-                    contextMenuOrder: 1,
+                    contextMenuOrder: 4,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_VIEW);
                     },
@@ -226,7 +240,7 @@ export const Editor: React.FC<Props> = ({
                     precondition: undefined,
                     keybindingContext: undefined,
                     contextMenuGroupId: 'view',
-                    contextMenuOrder: 7,
+                    contextMenuOrder: 5,
                     run: () => {
                         refAction.current?.(ActionType.TOGGLE_AUTORUN);
                     },
