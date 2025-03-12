@@ -25,7 +25,16 @@
 -   data - данные которые должны возвращаться из ручки (обязательно);
 -   delay - задержка ответа в мс (не обязательно).
 
-Пример:
+Пример запроса:
+
+```javascript
+fetch('/profile')
+    .then((res) => res.json())
+    .then((data) => console.log(data))
+    .catch((err) => console.error(err));
+```
+
+Пример описания ручки:
 
 ```json
 [
