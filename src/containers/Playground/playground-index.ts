@@ -2,6 +2,7 @@ import * as Babel from '@babel/standalone';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 
 console.log = (...attrs) => {
@@ -25,6 +26,7 @@ window.onerror = (
 
 window.React = React;
 window.ReactDOM = ReactDOM;
+//@ts-ignore
 window.styled = styled;
 
 const style = document.createElement('style');
@@ -32,39 +34,50 @@ document.body.prepend(style);
 
 let output = '';
 let oldOutput = output;
+
 window.onmessage = (event: MessageEvent) => {
+    // TSX
     if (event.data.code) {
         try {
             oldOutput = output;
-            output = Babel.transform(event.data.code, {
+            const babelResult = Babel.transform(event.data.code, {
                 filename: 'index.tsx',
                 presets: ['typescript', 'react', 'env'],
             }).code;
-        } catch (error) {
+
+            if (babelResult) output = babelResult;
+        } catch (_) {
             output = oldOutput;
         } finally {
             try {
-                eval(output);
+                document.body.innerHTML = '<div id="app"></div>';
+                const App = eval(output);
+                createRoot(
+                    document.getElementById('app') as HTMLDivElement
+                ).render(App);
             } catch (error) {
-                console.error(error.message);
+                console.error(error);
             }
         }
     }
 
+    // CSS
     if (event.data.css) {
         style.innerHTML = event.data.css;
     }
 
+    // HTML
     if (event.data.html) {
         document.body.innerHTML = event.data.html;
         document.body.prepend(style);
         try {
             eval(output);
         } catch (error) {
-            console.error(error.message);
+            console.error(error);
         }
     }
 
+    // API
     if (
         typeof event.data === 'object' &&
         'api' in event.data &&
