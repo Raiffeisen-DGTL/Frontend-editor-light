@@ -2,7 +2,7 @@ import * as Babel from '@babel/standalone';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 import styled from 'styled-components';
 
 console.log = (...attrs) => {
@@ -29,15 +29,22 @@ window.ReactDOM = ReactDOM;
 //@ts-ignore
 window.styled = styled;
 
-const style = document.createElement('style');
-document.body.prepend(style);
+const styleWrapper = document.createElement('style');
+const mainWrapper = document.createElement('main');
+const tsxWrapper = document.createElement('div');
+tsxWrapper.id = 'tsxApp';
+
+document.body.prepend(styleWrapper);
+document.body.append(mainWrapper);
+document.body.append(tsxWrapper);
 
 let output = '';
 let oldOutput = output;
+let tsxRoot: null | Root = null;
 
 window.onmessage = (event: MessageEvent) => {
     // TSX
-    if (event.data.code) {
+    if (event.data.code !== undefined) {
         try {
             oldOutput = output;
             const babelResult = Babel.transform(event.data.code, {
@@ -50,11 +57,16 @@ window.onmessage = (event: MessageEvent) => {
             output = oldOutput;
         } finally {
             try {
-                document.body.innerHTML = '<div id="app"></div>';
                 const App = eval(output);
-                createRoot(
-                    document.getElementById('app') as HTMLDivElement
-                ).render(App);
+                if (App !== 'use strict') {
+                    if (!tsxRoot) {
+                        tsxRoot = createRoot(
+                            document.getElementById('tsxApp') as HTMLDivElement
+                        );
+                    }
+
+                    tsxRoot.render(App);
+                }
             } catch (error) {
                 console.error(error);
             }
@@ -62,14 +74,13 @@ window.onmessage = (event: MessageEvent) => {
     }
 
     // CSS
-    if (event.data.css) {
-        style.innerHTML = event.data.css;
+    if (event.data.css !== undefined) {
+        styleWrapper.innerHTML = event.data.css;
     }
 
     // HTML
-    if (event.data.html) {
-        document.body.innerHTML = event.data.html;
-        document.body.prepend(style);
+    if (event.data.html !== undefined) {
+        mainWrapper.innerHTML = event.data.html;
         try {
             eval(output);
         } catch (error) {
