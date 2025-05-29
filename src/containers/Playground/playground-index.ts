@@ -2,6 +2,7 @@ import * as Babel from '@babel/standalone';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot, Root } from 'react-dom/client';
 import styled from 'styled-components';
 
 console.log = (...attrs) => {
@@ -25,46 +26,69 @@ window.onerror = (
 
 window.React = React;
 window.ReactDOM = ReactDOM;
+//@ts-ignore
 window.styled = styled;
 
-const style = document.createElement('style');
-document.body.prepend(style);
+const styleWrapper = document.createElement('style');
+const mainWrapper = document.createElement('main');
+const tsxWrapper = document.createElement('div');
+tsxWrapper.id = 'tsxApp';
+
+document.body.prepend(styleWrapper);
+document.body.append(mainWrapper);
+document.body.append(tsxWrapper);
 
 let output = '';
 let oldOutput = output;
+let tsxRoot: null | Root = null;
+
 window.onmessage = (event: MessageEvent) => {
-    if (event.data.code) {
+    // TSX
+    if (event.data.code !== undefined) {
         try {
             oldOutput = output;
-            output = Babel.transform(event.data.code, {
+            const babelResult = Babel.transform(event.data.code, {
                 filename: 'index.tsx',
                 presets: ['typescript', 'react', 'env'],
             }).code;
-        } catch (error) {
+
+            if (babelResult) output = babelResult;
+        } catch (_) {
             output = oldOutput;
         } finally {
             try {
-                eval(output);
+                const App = eval(output);
+                if (App !== 'use strict') {
+                    if (!tsxRoot) {
+                        tsxRoot = createRoot(
+                            document.getElementById('tsxApp') as HTMLDivElement
+                        );
+                    }
+
+                    tsxRoot.render(App);
+                }
             } catch (error) {
-                console.error(error.message);
+                console.error(error);
             }
         }
     }
 
-    if (event.data.css) {
-        style.innerHTML = event.data.css;
+    // CSS
+    if (event.data.css !== undefined) {
+        styleWrapper.innerHTML = event.data.css;
     }
 
-    if (event.data.html) {
-        document.body.innerHTML = event.data.html;
-        document.body.prepend(style);
+    // HTML
+    if (event.data.html !== undefined) {
+        mainWrapper.innerHTML = event.data.html;
         try {
             eval(output);
         } catch (error) {
-            console.error(error.message);
+            console.error(error);
         }
     }
 
+    // API
     if (
         typeof event.data === 'object' &&
         'api' in event.data &&
